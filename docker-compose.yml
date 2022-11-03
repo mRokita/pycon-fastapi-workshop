@@ -6,7 +6,7 @@ services:
     command: "--entrypoints.web.address=0.0.0.0:80
      --providers.docker 
      --providers.docker.exposedByDefault=false 
-     --providers.docker.network=pycon-fastapi_traefik 
+     --providers.docker.network=pycon-fastapi-workshop_traefik 
      '--providers.docker.constraints=Label(`pycon.traefik`,`true`)'"
     ports:
       - 8081:80
