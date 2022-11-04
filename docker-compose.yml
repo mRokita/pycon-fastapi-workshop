@@ -19,7 +19,7 @@ services:
       PROXY_ROOT_PATH: /api
       CHAT_BACKEND: redis
       AUTH_BACKEND: redis
-      REDIS_URL: redis
+      REDIS_URL: redis://redis
     build:
       context: pycon-chat
     image: pycon_chat
