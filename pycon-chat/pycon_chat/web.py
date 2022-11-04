@@ -1,11 +1,13 @@
-from fastapi import FastAPI, Depends
-from fastapi.security import HTTPBasic
+from fastapi import FastAPI, Depends, Header
+from fastapi.security import HTTPBasic, HTTPBasicCredentials
+from starlette.requests import Request
+
 from pycon_chat.schemas import User, UserBase
 from starlette.middleware.cors import CORSMiddleware
 from pycon_chat.services.auth import (
     AuthService,
     MemoryAuthService,
-    RedisAuthService,
+    RedisAuthService, InvalidCredentials,
 )
 from pycon_chat.services.chat import ChatService, MemoryChatService, RedisChatService
 from pycon_chat import __version__
@@ -51,3 +53,13 @@ async def on_shutdown():
 @app.post("/users", response_model=UserBase)
 async def create_user(user: User, auth_backend: AuthService = Depends(auth_service)):
     return await auth_backend.create_user(user.username, user.password)
+
+
+@app.get("/users/me", response_model=UserBase)
+async def my_user(credentials: HTTPBasicCredentials = Depends(auth),
+                  auth_backend: AuthService = Depends(auth_service)):
+    user: UserBase = await auth_backend.authenticate_user(
+        credentials.username,
+        credentials.password)
+    print("password: ", credentials.password)
+    return user
