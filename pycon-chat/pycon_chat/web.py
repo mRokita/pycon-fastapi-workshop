@@ -1,3 +1,5 @@
+from typing import List
+
 from fastapi import FastAPI, Depends, Header, HTTPException, Body
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from starlette import status
@@ -9,7 +11,8 @@ from starlette.middleware.cors import CORSMiddleware
 from pycon_chat.services.auth import (
     AuthService,
     MemoryAuthService,
-    RedisAuthService, InvalidCredentials,
+    RedisAuthService,
+    InvalidCredentials,
 )
 from pycon_chat.services.chat import ChatService, MemoryChatService, RedisChatService
 from pycon_chat import __version__
@@ -66,11 +69,12 @@ def handle_invalid_credentials(request: Request, exc: Exception):
 
 
 async def authenticated_user(
-        credentials: HTTPBasicCredentials = Depends(auth),
-        auth_backend: AuthService = Depends(auth_service)) -> UserBase:
+    credentials: HTTPBasicCredentials = Depends(auth),
+    auth_backend: AuthService = Depends(auth_service),
+) -> UserBase:
     return await auth_backend.authenticate_user(
-        credentials.username,
-        credentials.password)
+        credentials.username, credentials.password
+    )
 
 
 @app.get("/users/me", response_model=UserBase)
@@ -78,11 +82,17 @@ async def my_user(user: UserBase = Depends(authenticated_user)):
     return user
 
 
-@app.post("/channels", response_model=Channel, dependencies=[Depends(authenticated_user)])
-async def create_channel(channel: Channel = Body(...,
-                                                 description="The channel you want to create."),
-                   chat_backend: ChatService = Depends(chat_service)):
-    return await chat_backend.create_channel(
-        name=channel.name, slug=channel.slug
-    )
+@app.post(
+    "/channels", response_model=Channel, dependencies=[Depends(authenticated_user)]
+)
+async def create_channel(
+    channel: Channel = Body(..., description="The channel you want to create."),
+    chat_backend: ChatService = Depends(chat_service),
+):
+    return await chat_backend.create_channel(name=channel.name, slug=channel.slug)
 
+
+@app.get("/channels", response_model=List[Channel],
+         dependencies=[Depends(authenticated_user)])
+async def list_channels(chat_backend: ChatService = Depends(chat_service)):
+    return list(await chat_backend.get_channels())

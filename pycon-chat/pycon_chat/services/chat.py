@@ -133,4 +133,3 @@ class RedisChatService(ChatService):
     def close(self):
         asyncio.create_task(self.redis.close())
         asyncio.create_task(self.redis.connection_pool.disconnect())
-
