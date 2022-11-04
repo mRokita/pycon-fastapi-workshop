@@ -17,8 +17,9 @@ services:
   backend:
     environment:
       PROXY_ROOT_PATH: /api
-      CHAT_BACKEND: memory
-      AUTH_BACKEND: memory
+      CHAT_BACKEND: redis
+      AUTH_BACKEND: redis
+      REDIS_URL: redis
     build:
       context: pycon-chat
     image: pycon_chat

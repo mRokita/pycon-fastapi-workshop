@@ -51,3 +51,13 @@ class RedisAuthService(AuthService):
     def close(self):
         asyncio.create_task(self.redis.close())
         asyncio.create_task(self.redis.connection_pool.disconnect())
+
+    async def create_user(self, username: str, password: str) -> UserBase:
+        await self.redis.hset(":users", mapping={username: password})
+        return UserBase(username=username)
+
+    async def authenticate_user(self, username: str, password: str) -> UserBase:
+        db_password = await self.redis.hget(":users", username)
+        if not db_password or not secrets.compare_digest(password, db_password):
+            raise InvalidCredentials()
+        return UserBase(username=username)
