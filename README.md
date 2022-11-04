@@ -73,3 +73,6 @@ Open frontend in your browser, and make sure that value of the "API URL" text fi
 ![](https://i.imgur.com/5iQcYcG.png)
 
 To run tests, execute `make test` from the `pycon-chat` directory.
+
+In the middle of the workshop, you will also need to use Redis, 
+which is very easy to install on most platforms - see https://redis.io/docs/getting-started/.
