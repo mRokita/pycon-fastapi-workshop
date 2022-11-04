@@ -1,5 +1,6 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
 from fastapi.security import HTTPBasic
+from pycon_chat.schemas import User, UserBase
 from starlette.middleware.cors import CORSMiddleware
 from pycon_chat.services.auth import (
     AuthService,
@@ -47,3 +48,6 @@ async def on_shutdown():
     app.state.auth_service.close()
 
 
+@app.post("/users", response_model=UserBase)
+async def create_user(user: User, auth_backend: AuthService = Depends(auth_service)):
+    return await auth_backend.create_user(user.username, user.password)
