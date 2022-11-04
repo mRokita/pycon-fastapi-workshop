@@ -1,10 +1,10 @@
-from fastapi import FastAPI, Depends, Header, HTTPException
+from fastapi import FastAPI, Depends, Header, HTTPException, Body
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from starlette import status
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 
-from pycon_chat.schemas import User, UserBase
+from pycon_chat.schemas import User, UserBase, Channel
 from starlette.middleware.cors import CORSMiddleware
 from pycon_chat.services.auth import (
     AuthService,
@@ -65,11 +65,24 @@ def handle_invalid_credentials(request: Request, exc: Exception):
     )
 
 
-@app.get("/users/me", response_model=UserBase)
-async def my_user(credentials: HTTPBasicCredentials = Depends(auth),
-                  auth_backend: AuthService = Depends(auth_service)):
-    user: UserBase = await auth_backend.authenticate_user(
+async def authenticated_user(
+        credentials: HTTPBasicCredentials = Depends(auth),
+        auth_backend: AuthService = Depends(auth_service)) -> UserBase:
+    return await auth_backend.authenticate_user(
         credentials.username,
         credentials.password)
-    print("password: ", credentials.password)
+
+
+@app.get("/users/me", response_model=UserBase)
+async def my_user(user: UserBase = Depends(authenticated_user)):
     return user
+
+
+@app.post("/channels", response_model=Channel, dependencies=[Depends(authenticated_user)])
+async def create_channel(channel: Channel = Body(...,
+                                                 description="The channel you want to create."),
+                   chat_backend: ChatService = Depends(chat_service)):
+    return await chat_backend.create_channel(
+        name=channel.name, slug=channel.slug
+    )
+
