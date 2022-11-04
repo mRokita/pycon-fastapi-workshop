@@ -1,6 +1,8 @@
-from fastapi import FastAPI, Depends, Header
+from fastapi import FastAPI, Depends, Header, HTTPException
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
+from starlette import status
 from starlette.requests import Request
+from starlette.responses import JSONResponse
 
 from pycon_chat.schemas import User, UserBase
 from starlette.middleware.cors import CORSMiddleware
@@ -53,6 +55,14 @@ async def on_shutdown():
 @app.post("/users", response_model=UserBase)
 async def create_user(user: User, auth_backend: AuthService = Depends(auth_service)):
     return await auth_backend.create_user(user.username, user.password)
+
+
+@app.exception_handler(InvalidCredentials)
+def handle_invalid_credentials(request: Request, exc: Exception):
+    return JSONResponse(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        content={"detail": "Invalid credentials."},
+    )
 
 
 @app.get("/users/me", response_model=UserBase)
