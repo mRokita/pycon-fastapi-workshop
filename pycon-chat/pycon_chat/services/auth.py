@@ -5,7 +5,7 @@ import secrets
 from abc import ABC, abstractmethod
 from typing import Dict
 
-import aioredis
+from redis import asyncio as aioredis
 
 from pycon_chat.schemas import UserBase, User
 from pycon_chat.settings import REDIS_URL

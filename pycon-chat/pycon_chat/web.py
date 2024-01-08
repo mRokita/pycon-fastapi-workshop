@@ -4,7 +4,6 @@ from typing import (
     Optional,
 )
 
-from aioredis import Redis
 from fastapi import FastAPI, Depends, Body, HTTPException, Path
 from fastapi.encoders import jsonable_encoder
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
@@ -23,7 +22,7 @@ from pycon_chat.services.auth import (
 )
 from pycon_chat.services.chat import ChatService, MemoryChatService, RedisChatService
 from pycon_chat import __version__
-from pycon_chat.settings import PROXY_ROOT_PATH, ChatBackend, AuthBackend, REDIS_URL
+from pycon_chat.settings import PROXY_ROOT_PATH, ChatBackend, AuthBackend
 
 app = FastAPI(version=__version__, title="PyCon Chat API", root_path=PROXY_ROOT_PATH)
 app.add_middleware(

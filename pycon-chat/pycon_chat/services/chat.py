@@ -14,7 +14,7 @@ from typing import (
     Optional,
 )
 
-import aioredis
+from redis import asyncio as aioredis
 
 from pycon_chat.schemas import Channel, MessageBase, Message, UserBase
 from pycon_chat.settings import REDIS_URL
